@@ -18,23 +18,42 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v3
 
-        
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}        
       
     - name: Get Current Date 
       id: date
       run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
     
 
-    - name: download
+    - name: Download and Build
       env:
+        DOCKER_HUB_REPOSITORY: nuaays/filecoin-snapshot
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        echo "new tag: " ${{ steps.tag_version.outputs.new_tag }} ","  ${{ steps.tag_version.outputs.new_version }}
-        echo "SHA: ${IMAGE_TAG}"
+        export IMAGE_TAG=${{ steps.date.outputs.date }};
+        export IMAGE_TAG_LATEST="latest";
+        echo "IMAGE_TAG: ${IMAGE_TAG}";
+        echo "SHA: ${SHA_TAG}";
 
         apt-get update && apt-get install -y wget
         wget -O minimal_finality_stateroots_latest.car https://snapshots.mainnet.filops.net/minimal/latest
-
         ls -lh minimal_finality_stateroots_latest.car
 
+        echo "========Build allinone docker image both for amd64 and arm64========"
+        wget https://github.com/docker/buildx/releases/download/v0.11.2/buildx-v0.11.2.linux-amd64
+        chmod +x buildx-v0.11.2.linux-amd64
+        mkdir -p $HOME/.docker/cli-plugins
+        mv buildx-v0.11.2.linux-amd64 $HOME/.docker/cli-plugins/docker-buildx
+        docker buildx create --use
+        docker buildx ls
+        
+        docker buildx build --platform linux/amd64 \
+                            --pull \
+                            --push \
+                            -t ${DOCKER_HUB_REPOSITORY}:${IMAGE_TAG} \
+                            -t ${DOCKER_HUB_REPOSITORY}:${IMAGE_TAG_LATEST} .
         
