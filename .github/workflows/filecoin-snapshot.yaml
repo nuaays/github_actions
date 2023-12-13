@@ -39,9 +39,9 @@ jobs:
         echo "IMAGE_TAG: ${IMAGE_TAG}";
         echo "SHA: ${SHA_TAG}";
 
-        apt-get update && apt-get install -y wget
-        wget -O minimal_finality_stateroots_latest.car https://snapshots.mainnet.filops.net/minimal/latest
-        ls -lh minimal_finality_stateroots_latest.car
+        #apt-get update && apt-get install -y wget
+        #wget -O minimal_finality_stateroots_latest.car https://snapshots.mainnet.filops.net/minimal/latest
+        #ls -lh minimal_finality_stateroots_latest.car
 
         echo "========Build allinone docker image both for amd64 and arm64========"
         wget https://github.com/docker/buildx/releases/download/v0.11.2/buildx-v0.11.2.linux-amd64
