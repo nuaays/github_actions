@@ -1,0 +1,40 @@
+name: Download Filecoin Snapshot
+
+on:
+  push:
+   branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+  
+    name: Download 
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Check out code
+      uses: actions/checkout@v3
+
+        
+      
+    - name: Get Current Date 
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+    
+
+    - name: download
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        echo "new tag: " ${{ steps.tag_version.outputs.new_tag }} ","  ${{ steps.tag_version.outputs.new_version }}
+        echo "SHA: ${IMAGE_TAG}"
+
+        apt-get update && apt-get install -y wget
+        wget -O minimal_finality_stateroots_latest.car https://snapshots.mainnet.filops.net/minimal/latest
+
+        ls -lh minimal_finality_stateroots_latest.car
+
+        
